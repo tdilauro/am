@@ -1,14 +1,14 @@
 [submodule "archivematica"]
 	path = src/archivematica
-	url = https://github.com/artefactual/archivematica
-	branch = qa/1.x
+	url = https://github.com/tdilauro/archivematica
+	branch = submodule-delegation
 [submodule "archivematica-storage-service"]
 	path = src/archivematica-storage-service
-	url = https://github.com/artefactual/archivematica-storage-service
-	branch = qa/0.x
+	url = https://github.com/tdilauro/archivematica-storage-service
+	branch = submodule-delegation
 [submodule "archivematica-acceptance-tests"]
 	path = src/archivematica-acceptance-tests
-	url = https://github.com/artefactual-labs/archivematica-acceptance-tests
+	url = https://github.com/tdilauro/archivematica-acceptance-tests
 	branch = master
 [submodule "src/archivematica-sampledata"]
 	path = src/archivematica-sampledata

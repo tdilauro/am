@@ -18,83 +18,90 @@ create-volumes:  ## Create external data volumes.
 		--opt device=$(SS_LOCATION_DATA) \
 			ss-location-data
 
-bootstrap: bootstrap-storage-service bootstrap-dashboard-db bootstrap-dashboard-frontend  ## Full bootstrap.
+# ** bootstrap now handled in component makefiles
+# bootstrap: bootstrap-storage-service bootstrap-dashboard-db bootstrap-dashboard-frontend  ## Full bootstrap.
 
-bootstrap-storage-service:  ## Boostrap Storage Service (new database).
-	docker-compose exec mysql mysql -hlocalhost -uroot -p12345 -e "\
-		DROP DATABASE IF EXISTS SS; \
-		CREATE DATABASE SS; \
-		GRANT ALL ON SS.* TO 'archivematica'@'%' IDENTIFIED BY 'demo';"
-	docker-compose run \
-		--rm \
-		--entrypoint /src/storage_service/manage.py \
-			archivematica-storage-service \
-				migrate --noinput
-	docker-compose run \
-		--rm \
-		--entrypoint /src/storage_service/manage.py \
-			archivematica-storage-service \
-				create_user \
-					--username="test" \
-					--password="test" \
-					--email="test@test.com" \
-					--api-key="test" \
-					--superuser
-	# SS needs to be restarted so the local space is created.
-	# See #303 (https://git.io/vNKlM) for more details.
-	docker-compose restart archivematica-storage-service
+-include ../src/archivematica-storage-service/Makefile
 
-makemigrations-ss:
-	docker-compose run \
-		--rm \
-		--entrypoint /src/storage_service/manage.py \
-			archivematica-storage-service \
-				makemigrations
+# bootstrap-storage-service:  ## Boostrap Storage Service (new database).
+# 	docker-compose exec mysql mysql -hlocalhost -uroot -p12345 -e "\
+# 		DROP DATABASE IF EXISTS SS; \
+# 		CREATE DATABASE SS; \
+# 		GRANT ALL ON SS.* TO 'archivematica'@'%' IDENTIFIED BY 'demo';"
+# 	docker-compose run \
+# 		--rm \
+# 		--entrypoint /src/storage_service/manage.py \
+# 			archivematica-storage-service \
+# 				migrate --noinput
+# 	docker-compose run \
+# 		--rm \
+# 		--entrypoint /src/storage_service/manage.py \
+# 			archivematica-storage-service \
+# 				create_user \
+# 					--username="test" \
+# 					--password="test" \
+# 					--email="test@test.com" \
+# 					--api-key="test" \
+# 					--superuser
+# 	# SS needs to be restarted so the local space is created.
+# 	# See #303 (https://git.io/vNKlM) for more details.
+# 	docker-compose restart archivematica-storage-service
+# 
+# makemigrations-ss:
+# 	docker-compose run \
+# 		--rm \
+# 		--entrypoint /src/storage_service/manage.py \
+# 			archivematica-storage-service \
+# 				makemigrations
 
-bootstrap-dashboard-db:  ## Bootstrap Dashboard (new database).
-	docker-compose exec mysql mysql -hlocalhost -uroot -p12345 -e "\
-		DROP DATABASE IF EXISTS MCP; \
-		CREATE DATABASE MCP; \
-		GRANT ALL ON MCP.* TO 'archivematica'@'%' IDENTIFIED BY 'demo';"
-	docker-compose run \
-		--rm \
-		--entrypoint /src/dashboard/src/manage.py \
-			archivematica-dashboard \
-				migrate --noinput
-	docker-compose run \
-		--rm \
-		--entrypoint /src/dashboard/src/manage.py \
-			archivematica-dashboard \
-				install \
-					--username="test" \
-					--password="test" \
-					--email="test@test.com" \
-					--org-name="test" \
-					--org-id="test" \
-					--api-key="test" \
-					--ss-url="http://archivematica-storage-service:8000" \
-					--ss-user="test" \
-					--ss-api-key="test"
 
-bootstrap-dashboard-frontend:  ## Build front-end assets.
-	docker-compose run --rm --no-deps \
-		--user root \
-		--entrypoint npm \
-		--workdir /src/dashboard/frontend/transfer-browser \
-			archivematica-dashboard \
-				install --unsafe-perm
-	docker-compose run --rm --no-deps \
-		--user root \
-		--entrypoint npm \
-		--workdir /src/dashboard/frontend/appraisal-tab \
-			archivematica-dashboard \
-				install --unsafe-perm
+-include ../src/archivematica/src/Makefile
 
-restart-am-services:  ## Restart Archivematica services: MCPServer, MCPClient, Dashboard and Storage Service.
-	docker-compose restart archivematica-mcp-server
-	docker-compose restart archivematica-mcp-client
-	docker-compose restart archivematica-dashboard
-	docker-compose restart archivematica-storage-service
+# bootstrap-dashboard-db:  ## Bootstrap Dashboard (new database).
+# 	docker-compose exec mysql mysql -hlocalhost -uroot -p12345 -e "\
+# 		DROP DATABASE IF EXISTS MCP; \
+# 		CREATE DATABASE MCP; \
+# 		GRANT ALL ON MCP.* TO 'archivematica'@'%' IDENTIFIED BY 'demo';"
+# 	docker-compose run \
+# 		--rm \
+# 		--entrypoint /src/dashboard/src/manage.py \
+# 			archivematica-dashboard \
+# 				migrate --noinput
+# 	docker-compose run \
+# 		--rm \
+# 		--entrypoint /src/dashboard/src/manage.py \
+# 			archivematica-dashboard \
+# 				install \
+# 					--username="test" \
+# 					--password="test" \
+# 					--email="test@test.com" \
+# 					--org-name="test" \
+# 					--org-id="test" \
+# 					--api-key="test" \
+# 					--ss-url="http://archivematica-storage-service:8000" \
+# 					--ss-user="test" \
+# 					--ss-api-key="test"
+# 
+# bootstrap-dashboard-frontend:  ## Build front-end assets.
+# 	docker-compose run --rm --no-deps \
+# 		--user root \
+# 		--entrypoint npm \
+# 		--workdir /src/dashboard/frontend/transfer-browser \
+# 			archivematica-dashboard \
+# 				install --unsafe-perm
+# 	docker-compose run --rm --no-deps \
+# 		--user root \
+# 		--entrypoint npm \
+# 		--workdir /src/dashboard/frontend/appraisal-tab \
+# 			archivematica-dashboard \
+# 				install --unsafe-perm
+
+# ** this now handled by component makefiles
+# restart-am-services:  ## Restart Archivematica services: MCPServer, MCPClient, Dashboard and Storage Service.
+# 	docker-compose restart archivematica-mcp-server
+# 	docker-compose restart archivematica-mcp-client
+# 	docker-compose restart archivematica-dashboard
+# 	docker-compose restart archivematica-storage-service
 
 db:  ## Connect to the MySQL server using the CLI.
 	mysql -h127.0.0.1 --port=62001 -uroot -p12345
